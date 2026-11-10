@@ -36,11 +36,12 @@ void describe('/rest/products/:id/reviews', () => {
     assert.equal(typeof review.author, 'string')
   })
 
-  void it('GET product reviews attack by injecting a mongoDB sleep command', async () => {
+  void it('GET product reviews does not execute MongoDB expressions in the product id', async () => {
     const res = await request(app)
       .get('/rest/products/sleep(1)/reviews')
     assert.equal(res.status, 200)
     assert.ok(res.headers['content-type']?.includes('application/json'))
+    assert.deepEqual(res.body.data, [])
   })
 
   // FIXME Turn on when #1960 is resolved

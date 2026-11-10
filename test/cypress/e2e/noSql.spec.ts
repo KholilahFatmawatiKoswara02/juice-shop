@@ -3,71 +3,36 @@ describe('/rest/products/reviews', () => {
     cy.visit('/#/search')
   })
 
-  describe('challenge "noSqlCommandChallenge"', () => {
-    beforeEach(() => {
-      cy.login({ email: 'admin', password: 'admin123' })
-    })
-    it('should be possible to inject a command into the get route', () => {
-      cy.task('isDocker').then((isDocker) => {
-        if (!isDocker) {
-          cy.window().then(() => {
-            void fetch(
-              `${Cypress.config('baseUrl')}/rest/products/sleep(100)/reviews`,
-              {
-                method: 'GET',
-                headers: {
-                  'Content-type': 'text/plain'
-                }
-              }
-            )
-          })
-          cy.expectChallengeSolved({ challenge: 'NoSQL DoS' })
-        }
-      })
+  it('does not execute expressions in a product review selector', () => {
+    cy.request('/rest/products/sleep(100)/reviews').then((response) => {
+      expect(response.status).to.equal(200)
+      expect(response.body.data).to.deep.equal([])
     })
   })
 
-  describe('challenge "noSqlOrdersChallenge"', () => {
-    it('should be possible to inject and get all the orders', () => {
-      cy.task('isDocker').then((isDocker) => {
-        if (!isDocker) {
-          cy.window().then(async () => {
-            await fetch(
-              `${Cypress.config('baseUrl')}/rest/track-order/%27%20%7C%7C%20true%20%7C%7C%20%27`,
-              {
-                method: 'GET',
-                headers: {
-                  'Content-type': 'text/plain'
-                }
-              }
-            )
-          })
-          cy.expectChallengeSolved({ challenge: 'NoSQL Exfiltration' })
-        }
-      })
+  it('does not return other orders for an injected order id', () => {
+    const orderId = "' || true || '"
+    cy.request(`/rest/track-order/${encodeURIComponent(orderId)}`).then((response) => {
+      expect(response.status).to.equal(200)
+      expect(response.body.data).to.have.length(1)
+      expect(Object.keys(response.body.data[0])).to.deep.equal(['orderId'])
     })
   })
 
-  describe('challenge "noSqlReviewsChallenge"', () => {
+  describe('review updates', () => {
     beforeEach(() => {
       cy.login({ email: 'admin', password: 'admin123' })
     })
 
-    it('should be possible to inject a selector into the update route', () => {
-      cy.window().then(async () => {
-        await fetch(`${Cypress.config('baseUrl')}/rest/products/reviews`, {
-          method: 'PATCH',
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({
-            id: { $ne: -1 },
-            message: 'NoSQL Injection!'
-          })
-        })
+    it('rejects object selectors instead of updating multiple reviews', () => {
+      cy.request({
+        method: 'PATCH',
+        url: '/rest/products/reviews',
+        failOnStatusCode: false,
+        body: { id: { $ne: -1 }, message: 'NoSQL Injection!' }
+      }).then((response) => {
+        expect(response.status).to.equal(400)
       })
-      cy.expectChallengeSolved({ challenge: 'NoSQL Manipulation' })
     })
   })
 

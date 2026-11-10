@@ -8,7 +8,6 @@ import { type Request, type Response, type NextFunction } from 'express'
 import * as challengeUtils from '../lib/challengeUtils'
 import { challenges } from '../data/datacache'
 import * as security from '../lib/insecurity'
-import { type Review } from '../data/types'
 import * as db from '../data/mongodb'
 
 const sleep = async (ms: number) => await new Promise(resolve => setTimeout(resolve, ms))
@@ -40,7 +39,10 @@ export function likeProductReviews () {
       // Artificial wait for timing attack challenge
       await sleep(150)
       try {
-        const updatedReview: Review = await db.reviewsCollection.findOne({ _id: id })
+        const updatedReview = await db.reviewsCollection.findOne({ _id: id })
+        if (!updatedReview) {
+          throw new Error('Review not found')
+        }
         const updatedLikedBy = updatedReview.likedBy
         updatedLikedBy.push(user.data.email)
 

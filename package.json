@@ -128,7 +128,6 @@
     "js-yaml": "^3.14.0",
     "jsonwebtoken": "0.4.0",
     "libxml2-wasm": "^0.7.1",
-    "marsdb": "^0.6.11",
     "material-icons": "^1.13.14",
     "median": "^0.0.2",
     "morgan": "^1.10.0",
@@ -155,6 +154,10 @@
     "winston": "^3.16.0",
     "z85": "^0.0.2",
     "zod": "^4.4.3"
+  },
+  "overrides": {
+    "lodash": "^4.18.1",
+    "base64url": "^3.0.0"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^2.0.0||^3.0.0||^4.00",

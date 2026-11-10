@@ -17,7 +17,6 @@ import * as utils from '../lib/utils'
 import * as challengeUtils from '../lib/challengeUtils'
 import { challenges } from '../data/datacache'
 import * as db from '../data/mongodb'
-import { type Review } from '../data/types'
 import logger from '../lib/logger'
 import { Counter } from 'prom-client'
 
@@ -146,7 +145,7 @@ export function chat () {
         }),
         execute: async ({ id }) => {
           const productId = Number(id)
-          return await db.reviewsCollection.find({ $where: 'this.product == ' + productId }) as Review[]
+          return await db.reviewsCollection.find({ product: productId })
         }
       }),
 

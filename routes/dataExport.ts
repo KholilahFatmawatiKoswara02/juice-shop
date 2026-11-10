@@ -59,7 +59,7 @@ export function dataExport () {
             author: string
             productId: number
             likesCount: number
-            likedBy: string
+            likedBy: string[]
           }>
           memories: Array<{
             imageUrl: string
@@ -91,7 +91,7 @@ export function dataExport () {
             author: string
             product: number
             likesCount: number
-            likedBy: string
+            likedBy: string[]
           }) => ({
             message: review.message,
             author: review.author,
